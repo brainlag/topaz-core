@@ -17,11 +17,11 @@
 
 package org.quartz.impl;
 
-import java.util.Collection;
-import java.util.HashMap;
-
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+
+import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * <p>

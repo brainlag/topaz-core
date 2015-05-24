@@ -16,10 +16,10 @@
 
 package org.quartz.utils.counter.sampled;
 
-import java.util.TimerTask;
-
 import org.quartz.utils.CircularLossyQueue;
 import org.quartz.utils.counter.CounterImpl;
+
+import java.util.TimerTask;
 
 /**
  * An implementation of {@link SampledCounter}

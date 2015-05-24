@@ -20,15 +20,7 @@ package org.quartz;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Provides a parser and evaluator for unix-like cron expressions. Cron 

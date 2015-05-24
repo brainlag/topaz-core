@@ -15,14 +15,7 @@
  */
 package org.quartz.listeners;
 
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerListener;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.quartz.*;
 
 /**
  * A helpful abstract base class for implementors of 
@@ -37,15 +30,6 @@ import org.slf4j.LoggerFactory;
  * @see org.quartz.SchedulerListener
  */
 public abstract class SchedulerListenerSupport implements SchedulerListener {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    /**
-     * Get the <code>{@link org.slf4j.Logger}</code> for this
-     * class's category.  This should be used by subclasses for logging.
-     */
-    protected Logger getLog() {
-        return log;
-    }
 
     public void jobAdded(JobDetail jobDetail) {
     }

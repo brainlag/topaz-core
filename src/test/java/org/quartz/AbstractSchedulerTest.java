@@ -15,32 +15,21 @@
  */
 package org.quartz;
 
+import org.junit.Test;
+import org.quartz.Trigger.TriggerState;
+import org.quartz.impl.matchers.GroupMatcher;
+
+import java.util.*;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.Assert.*;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.TriggerKey.triggerKey;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Test;
-
-import org.quartz.Trigger.TriggerState;
-import org.quartz.impl.matchers.GroupMatcher;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test High Level Scheduler functionality (implicitly tests the underlying jobstore (RAMJobStore))
@@ -50,13 +39,6 @@ public abstract class AbstractSchedulerTest {
     private static final String BARRIER = "BARRIER";
     private static final String DATE_STAMPS = "DATE_STAMPS";
     private static final String JOB_THREAD = "JOB_THREAD";
-
-    @SuppressWarnings("deprecation")
-    public static class TestStatefulJob implements StatefulJob {
-        public void execute(JobExecutionContext context)
-                throws JobExecutionException {
-        }
-    }
 
     public static class TestJob implements Job {
         public void execute(JobExecutionContext context)

@@ -15,14 +15,14 @@
  */
 package org.quartz.listeners;
 
+import org.quartz.JobExecutionContext;
+import org.quartz.Trigger;
+import org.quartz.Trigger.CompletedExecutionInstruction;
+import org.quartz.TriggerListener;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.quartz.JobExecutionContext;
-import org.quartz.Trigger;
-import org.quartz.TriggerListener;
-import org.quartz.Trigger.CompletedExecutionInstruction;
 
 /**
  * Holds a List of references to TriggerListener instances and broadcasts all

@@ -18,19 +18,13 @@
 
 package org.quartz.core;
 
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
+import org.apache.logging.log4j.LogManager;
+import org.quartz.*;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.impl.JobExecutionContextImpl;
 import org.quartz.listeners.SchedulerListenerSupport;
 import org.quartz.spi.OperableTrigger;
 import org.quartz.spi.TriggerFiredBundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -74,8 +68,6 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
 
     protected volatile boolean shutdownRequested = false;
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     /*
      * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      *
@@ -111,10 +103,6 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
         requestShutdown();
     }
 
-    @Override
-    protected Logger getLog() {
-        return log;
-    }
 
     public void initialize(QuartzScheduler sched)
         throws SchedulerException {
@@ -198,17 +186,17 @@ public class JobRunShell extends SchedulerListenerSupport implements Runnable {
 
                 // execute the job
                 try {
-                    log.debug("Calling execute on job " + jobDetail.getKey());
+                    LogManager.getLogger(this).debug("Calling execute on job " + jobDetail.getKey());
                     job.execute(jec);
                     endTime = System.currentTimeMillis();
                 } catch (JobExecutionException jee) {
                     endTime = System.currentTimeMillis();
                     jobExEx = jee;
-                    getLog().info("Job " + jobDetail.getKey() +
+                    LogManager.getLogger(this).info("Job " + jobDetail.getKey() +
                             " threw a JobExecutionException: ", jobExEx);
                 } catch (Throwable e) {
                     endTime = System.currentTimeMillis();
-                    getLog().error("Job " + jobDetail.getKey() +
+                    LogManager.getLogger(this).error("Job " + jobDetail.getKey() +
                             " threw an unhandled Exception: ", e);
                     SchedulerException se = new SchedulerException(
                             "Job threw an unhandled exception.", e);

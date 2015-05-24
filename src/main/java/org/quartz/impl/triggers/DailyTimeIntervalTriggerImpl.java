@@ -16,21 +16,12 @@
  */
 package org.quartz.impl.triggers;
 
+import org.quartz.*;
+import org.quartz.DateBuilder.IntervalUnit;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
-
-import org.quartz.DailyTimeIntervalScheduleBuilder;
-import org.quartz.DailyTimeIntervalTrigger;
-import org.quartz.DateBuilder;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.ScheduleBuilder;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.TimeOfDay;
-import org.quartz.Trigger;
-import org.quartz.DateBuilder.IntervalUnit;
 
 /**
  * A concrete implementation of DailyTimeIntervalTrigger that is used to fire a <code>{@link org.quartz.JobDetail}</code>

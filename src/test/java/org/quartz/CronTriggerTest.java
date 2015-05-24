@@ -15,69 +15,20 @@
  */
 package org.quartz;
 
+import org.junit.Test;
+import org.quartz.impl.triggers.CronTriggerImpl;
+
 import java.text.ParseException;
 
-import org.quartz.impl.triggers.CronTriggerImpl;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Unit test for CronTrigger.
  */
-public class CronTriggerTest extends SerializationTestSupport {
+public class CronTriggerTest {
 
-    private static final String[] VERSIONS = new String[] {"2.0"};
-
-    /**
-     * Get the Quartz versions for which we should verify
-     * serialization backwards compatibility.
-     */
-    @Override
-    protected String[] getVersions() {
-        return VERSIONS;
-    }
-    
-    /**
-     * Get the object to serialize when generating serialized file for future
-     * tests, and against which to validate deserialized object.
-     */
-    @Override
-    protected Object getTargetObject() throws Exception {
-        JobDataMap jobDataMap = new JobDataMap();
-        jobDataMap.put("A", "B");
-        
-        CronTriggerImpl t = new CronTriggerImpl();
-        t.setName("test");
-        t.setGroup("testGroup");
-        t.setCronExpression("0 0 12 * * ?");
-        t.setCalendarName("MyCalendar");
-        t.setDescription("CronTriggerDesc");
-        t.setJobDataMap(jobDataMap);
-
-        return t;
-    }
-    
-    /**
-     * Verify that the target object and the object we just deserialized 
-     * match.
-     */
-    @Override
-    protected void verifyMatch(Object target, Object deserialized) {
-        CronTriggerImpl targetCronTrigger = (CronTriggerImpl)target;
-        CronTriggerImpl deserializedCronTrigger = (CronTriggerImpl)deserialized;
-
-        assertNotNull(deserializedCronTrigger);
-        assertEquals(targetCronTrigger.getName(), deserializedCronTrigger.getName());
-        assertEquals(targetCronTrigger.getGroup(), deserializedCronTrigger.getGroup());
-        assertEquals(targetCronTrigger.getJobName(), deserializedCronTrigger.getJobName());
-        assertEquals(targetCronTrigger.getJobGroup(), deserializedCronTrigger.getJobGroup());
-//        assertEquals(targetCronTrigger.getStartTime(), deserializedCronTrigger.getStartTime());
-        assertEquals(targetCronTrigger.getEndTime(), deserializedCronTrigger.getEndTime());
-        assertEquals(targetCronTrigger.getCalendarName(), deserializedCronTrigger.getCalendarName());
-        assertEquals(targetCronTrigger.getDescription(), deserializedCronTrigger.getDescription());
-        assertEquals(targetCronTrigger.getJobDataMap(), deserializedCronTrigger.getJobDataMap());
-        assertEquals(targetCronTrigger.getCronExpression(), deserializedCronTrigger.getCronExpression());
-    }
-        
-    
+    @Test
     public void testClone() throws ParseException {
         CronTriggerImpl trigger = new CronTriggerImpl();
         trigger.setName("test");
@@ -94,6 +45,7 @@ public class CronTriggerTest extends SerializationTestSupport {
     }
 
     // http://jira.opensymphony.com/browse/QUARTZ-558
+    @Test
     public void testQuartz558() throws ParseException {
         CronTriggerImpl trigger = new CronTriggerImpl();
         trigger.setName("test");
@@ -103,6 +55,7 @@ public class CronTriggerTest extends SerializationTestSupport {
         assertEquals( "Cloning failed", trigger, trigger2 );
     }
 
+    @Test
     public void testMisfireInstructionValidity() throws ParseException {
         CronTriggerImpl trigger = new CronTriggerImpl();
 
@@ -124,10 +77,4 @@ public class CronTriggerTest extends SerializationTestSupport {
         catch(Exception e) {
         }
     }
-
-    // execute with version number to generate a new version's serialized form
-    public static void main(String[] args) throws Exception {
-        new CronTriggerTest().writeJobDataFile("2.0");
-    }
-
 }

@@ -15,13 +15,13 @@
  */
 package org.quartz.listeners;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Holds a List of references to JobListener instances and broadcasts all

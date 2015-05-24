@@ -16,10 +16,10 @@
  */
 package org.quartz.simpl;
 
-import java.net.InetAddress;
-
 import org.quartz.SchedulerException;
 import org.quartz.spi.InstanceIdGenerator;
+
+import java.net.InetAddress;
 
 /**
  * <p>

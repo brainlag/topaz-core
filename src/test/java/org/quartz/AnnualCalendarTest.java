@@ -15,68 +15,29 @@
  */
 package org.quartz;
 
+import org.junit.Test;
+import org.quartz.impl.calendar.AnnualCalendar;
+
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.TimeZone;
 
-import org.quartz.impl.calendar.AnnualCalendar;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 /**
  * Unit test for AnnualCalendar serialization backwards compatibility.
  */
-public class AnnualCalendarTest extends SerializationTestSupport {
+public class AnnualCalendarTest {
     private static final String[] VERSIONS = new String[] {"1.5.1"};
-    
-    private static final TimeZone EST_TIME_ZONE = TimeZone.getTimeZone("America/New_York"); 
 
-    /**
-     * Get the object to serialize when generating serialized file for future
-     * tests, and against which to validate deserialized object.
-     */
-    @Override
-    protected Object getTargetObject() {
-        AnnualCalendar c = new AnnualCalendar();
-        
-        c.setDescription("description");
-        
-        Calendar cal = Calendar.getInstance(EST_TIME_ZONE, Locale.US); 
-        cal.clear();
-        cal.set(2005, Calendar.JANUARY, 20, 10, 5, 15);
-        
-        c.setDayExcluded(cal, true);
-        
-        return c;
-    }
-    
-    /**
-     * Get the Quartz versions for which we should verify
-     * serialization backwards compatibility.
-     */
-    @Override
-    protected String[] getVersions() {
-        return VERSIONS;
-    }
-    
-    /**
-     * Verify that the target object and the object we just deserialized 
-     * match.
-     */
-    @Override
-    protected void verifyMatch(Object target, Object deserialized) {
-        AnnualCalendar targetCalendar = (AnnualCalendar)target;
-        AnnualCalendar deserializedCalendar = (AnnualCalendar)deserialized;
-        
-        assertNotNull(deserializedCalendar);
-        assertEquals(targetCalendar.getDescription(), deserializedCalendar.getDescription());
-        assertEquals(targetCalendar.getDaysExcluded(), deserializedCalendar.getDaysExcluded());
-        assertNull(deserializedCalendar.getTimeZone());
-    }
+    private static final TimeZone EST_TIME_ZONE = TimeZone.getTimeZone("America/New_York");
 
     /**
      * Tests if method <code>setDaysExcluded</code> protects the property daysExcluded against nulling.
      * See: QUARTZ-590
      */
+    @Test
     public void testDaysExcluded() {
 		AnnualCalendar annualCalendar = new AnnualCalendar();
 		
@@ -89,6 +50,7 @@ public class AnnualCalendarTest extends SerializationTestSupport {
      * Tests the parameter <code>exclude</code> in a method <code>setDaysExcluded</code>
      * of class <code>org.quartz.impl.calendar.AnnualCalendar</code>
      */
+    @Test
     public void testExclude() {
         AnnualCalendar annualCalendar = new AnnualCalendar();
         Calendar day = Calendar.getInstance();
@@ -123,6 +85,7 @@ public class AnnualCalendarTest extends SerializationTestSupport {
     /**
      * QUARTZ-679 Test if the annualCalendar works over years
      */
+    @Test
     public void testDaysExcludedOverTime() {
         AnnualCalendar annualCalendar = new AnnualCalendar();
         Calendar day = Calendar.getInstance();
@@ -144,6 +107,7 @@ public class AnnualCalendarTest extends SerializationTestSupport {
     /**
      * Part 2 of the tests of QUARTZ-679
      */
+    @Test
     public void testRemoveInTheFuture() {
         AnnualCalendar annualCalendar = new AnnualCalendar();
         Calendar day = Calendar.getInstance();

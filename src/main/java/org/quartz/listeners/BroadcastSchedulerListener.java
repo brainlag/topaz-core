@@ -1,15 +1,10 @@
 package org.quartz.listeners;
 
+import org.quartz.*;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerListener;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
 
 /**
  * Holds a List of references to SchedulerListener instances and broadcasts all

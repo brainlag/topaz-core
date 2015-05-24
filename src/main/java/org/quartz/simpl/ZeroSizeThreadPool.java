@@ -17,8 +17,7 @@
 
 package org.quartz.simpl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
 import org.quartz.SchedulerConfigException;
 import org.quartz.spi.ThreadPool;
 
@@ -44,42 +43,12 @@ import org.quartz.spi.ThreadPool;
  */
 public class ZeroSizeThreadPool implements ThreadPool {
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Data members.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Constructors.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * <p>
      * Create a new <code>ZeroSizeThreadPool</code>.
      * </p>
      */
     public ZeroSizeThreadPool() {
-    }
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    public Logger getLog() {
-        return log;
     }
 
     public int getPoolSize() {
@@ -94,7 +63,7 @@ public class ZeroSizeThreadPool implements ThreadPool {
     }
 
     public void shutdown(boolean waitForJobsToComplete) {
-        getLog().debug("shutdown complete");
+        LogManager.getLogger(this).debug("shutdown complete");
     }
 
     public boolean runInThread(Runnable runnable) {

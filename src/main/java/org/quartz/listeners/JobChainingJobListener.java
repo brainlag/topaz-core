@@ -15,13 +15,14 @@
  */
 package org.quartz.listeners;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.apache.logging.log4j.LogManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Keeps a collection of mappings of which Job to trigger after the completion
@@ -93,12 +94,12 @@ public class JobChainingJobListener extends JobListenerSupport {
             return;
         }
 
-        getLog().info("Job '" + context.getJobDetail().getKey() + "' will now chain to Job '" + sj + "'");
+        LogManager.getLogger(this).info("Job '" + context.getJobDetail().getKey() + "' will now chain to Job '" + sj + "'");
 
         try {
              context.getScheduler().triggerJob(sj);
         } catch(SchedulerException se) {
-            getLog().error("Error encountered during chaining to Job '" + sj + "'", se);
+            LogManager.getLogger(this).error("Error encountered during chaining to Job '" + sj + "'", se);
         }
     }
 }

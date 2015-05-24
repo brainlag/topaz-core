@@ -17,27 +17,24 @@
 
 package org.quartz.impl;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import org.apache.logging.log4j.LogManager;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.core.JobRunShellFactory;
 import org.quartz.core.QuartzScheduler;
 import org.quartz.core.QuartzSchedulerResources;
-import org.quartz.simpl.CascadingClassLoadHelper;
 import org.quartz.simpl.RAMJobStore;
 import org.quartz.simpl.SimpleThreadPool;
-import org.quartz.spi.ClassLoadHelper;
 import org.quartz.spi.JobStore;
 import org.quartz.spi.SchedulerPlugin;
 import org.quartz.spi.ThreadExecutor;
 import org.quartz.spi.ThreadPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * <p>
@@ -94,13 +91,6 @@ import org.slf4j.LoggerFactory;
  */
 public class DirectSchedulerFactory implements SchedulerFactory {
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Constants.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
     public static final String DEFAULT_INSTANCE_ID = "SIMPLE_NON_CLUSTERED";
 
     public static final String DEFAULT_SCHEDULER_NAME = "SimpleQuartzScheduler";
@@ -115,45 +105,12 @@ public class DirectSchedulerFactory implements SchedulerFactory {
 
     private static final long DEFAULT_BATCH_TIME_WINDOW = 0L;
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Data members.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     private boolean initialized = false;
 
     private static DirectSchedulerFactory instance = new DirectSchedulerFactory();
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Constructors.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    protected Logger getLog() {
-        return log;
-    }
-
-    /**
-     * Constructor
-     */
     protected DirectSchedulerFactory() {
     }
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Interface.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
 
     public static DirectSchedulerFactory getInstance() {
         return instance;
@@ -175,85 +132,6 @@ public class DirectSchedulerFactory implements SchedulerFactory {
         threadPool.initialize();
         JobStore jobStore = new RAMJobStore();
         this.createScheduler(threadPool, jobStore);
-    }
-
-
-    /**
-     * Creates a proxy to a remote scheduler. This scheduler can be retrieved
-     * via {@link DirectSchedulerFactory#getScheduler()}
-     *
-     * @param rmiHost
-     *          The hostname for remote scheduler
-     * @param rmiPort
-     *          Port for the remote scheduler. The default RMI port is 1099.
-     * @throws SchedulerException
-     *           if the remote scheduler could not be reached.
-     */
-    public void createRemoteScheduler(String rmiHost, int rmiPort)
-        throws SchedulerException {
-        createRemoteScheduler(DEFAULT_SCHEDULER_NAME, DEFAULT_INSTANCE_ID,
-                rmiHost, rmiPort);
-    }
-
-    /**
-     * Same as
-     * {@link DirectSchedulerFactory#createRemoteScheduler(String rmiHost, int rmiPort)},
-     * with the addition of specifying the scheduler name and instance ID. This
-     * scheduler can only be retrieved via
-     * {@link DirectSchedulerFactory#getScheduler(String)}
-     *
-     * @param schedulerName
-     *          The name for the scheduler.
-     * @param schedulerInstanceId
-     *          The instance ID for the scheduler.
-     * @param rmiHost
-     *          The hostname for remote scheduler
-     * @param rmiPort
-     *          Port for the remote scheduler. The default RMI port is 1099.
-     * @throws SchedulerException
-     *           if the remote scheduler could not be reached.
-     */
-    public void createRemoteScheduler(String schedulerName,
-            String schedulerInstanceId, String rmiHost, int rmiPort)
-        throws SchedulerException {
-        createRemoteScheduler(schedulerName,
-                schedulerInstanceId, null, rmiHost, rmiPort);
-    }
-
-    /**
-     * Same as
-     * {@link DirectSchedulerFactory#createRemoteScheduler(String rmiHost, int rmiPort)},
-     * with the addition of specifying the scheduler name, instance ID, and rmi
-     * bind name. This scheduler can only be retrieved via
-     * {@link DirectSchedulerFactory#getScheduler(String)}
-     *
-     * @param schedulerName
-     *          The name for the scheduler.
-     * @param schedulerInstanceId
-     *          The instance ID for the scheduler.
-     * @param rmiBindName
-     *          The name of the remote scheduler in the RMI repository.  If null
-     *          defaults to the generated unique identifier.
-     * @param rmiHost
-     *          The hostname for remote scheduler
-     * @param rmiPort
-     *          Port for the remote scheduler. The default RMI port is 1099.
-     * @throws SchedulerException
-     *           if the remote scheduler could not be reached.
-     */
-    public void createRemoteScheduler(String schedulerName,
-            String schedulerInstanceId, String rmiBindName, String rmiHost, int rmiPort)
-        throws SchedulerException {
-
-        String uid = (rmiBindName != null) ? rmiBindName :
-            QuartzSchedulerResources.getUniqueIdentifier(
-                schedulerName, schedulerInstanceId);
-
-        RemoteScheduler remoteScheduler = new RemoteScheduler(uid, rmiHost, rmiPort);
-
-        SchedulerRepository schedRep = SchedulerRepository.getInstance();
-        schedRep.bind(remoteScheduler);
-        initialized = true;
     }
 
     /**
@@ -478,13 +356,7 @@ public class DirectSchedulerFactory implements SchedulerFactory {
         qrs.setJobStore(jobStore);
         qrs.setMaxBatchSize(maxBatchSize);
         qrs.setBatchTimeWindow(batchTimeWindow);
-        qrs.setRMIRegistryHost(rmiRegistryHost);
-        qrs.setRMIRegistryPort(rmiRegistryPort);
-        qrs.setJMXExport(jmxExport);
-        if (jmxObjectName != null) {
-           qrs.setJMXObjectName(jmxObjectName);
-        }
-        
+
         // add plugins
         if (schedulerPluginMap != null) {
             for (Iterator<SchedulerPlugin> pluginIter = schedulerPluginMap.values().iterator(); pluginIter.hasNext();) {
@@ -494,32 +366,26 @@ public class DirectSchedulerFactory implements SchedulerFactory {
 
         QuartzScheduler qs = new QuartzScheduler(qrs, idleWaitTime, dbFailureRetryInterval);
 
-        ClassLoadHelper cch = new CascadingClassLoadHelper();
-        cch.initialize();
-
         SchedulerDetailsSetter.setDetails(jobStore, schedulerName, schedulerInstanceId);
 
-        jobStore.initialize(cch, qs.getSchedulerSignaler());
+        jobStore.initialize(qs.getSchedulerSignaler());
 
         Scheduler scheduler = new StdScheduler(qs);
 
         jrsf.initialize(scheduler);
-
-        qs.initialize();
-        
 
         // Initialize plugins now that we have a Scheduler instance.
         if (schedulerPluginMap != null) {
             for (Iterator<Entry<String, SchedulerPlugin>> pluginEntryIter = schedulerPluginMap.entrySet().iterator(); pluginEntryIter.hasNext();) {
                 Entry<String, SchedulerPlugin> pluginEntry = pluginEntryIter.next();
 
-                pluginEntry.getValue().initialize(pluginEntry.getKey(), scheduler, cch);
+                pluginEntry.getValue().initialize(pluginEntry.getKey(), scheduler);
             }
         }
 
-        getLog().info("Quartz scheduler '" + scheduler.getSchedulerName());
+        LogManager.getLogger(this).info("Quartz scheduler '" + scheduler.getSchedulerName());
 
-        getLog().info("Quartz scheduler version: " + qs.getVersion());
+        LogManager.getLogger(this).info("Quartz scheduler version: " + qs.getVersion());
 
         SchedulerRepository schedRep = SchedulerRepository.getInstance();
 
@@ -530,14 +396,6 @@ public class DirectSchedulerFactory implements SchedulerFactory {
         
         initialized = true;
     }
-
-    /*
-     * public void registerSchedulerForRmi(String schedulerName, String
-     * schedulerId, String registryHost, int registryPort) throws
-     * SchedulerException, RemoteException { QuartzScheduler scheduler =
-     * (QuartzScheduler) this.getScheduler(); scheduler.bind(registryHost,
-     * registryPort); }
-     */
 
     /**
      * <p>

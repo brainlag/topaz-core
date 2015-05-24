@@ -16,8 +16,7 @@
  */
 package org.quartz.simpl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -36,21 +35,15 @@ import org.quartz.spi.TriggerFiredBundle;
  */
 public class SimpleJobFactory implements JobFactory {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    
-    protected Logger getLog() {
-        return log;
-    }
-    
     public Job newJob(TriggerFiredBundle bundle, Scheduler Scheduler) throws SchedulerException {
 
         JobDetail jobDetail = bundle.getJobDetail();
         Class<? extends Job> jobClass = jobDetail.getJobClass();
         try {
-            if(log.isDebugEnabled()) {
-                log.debug(
-                    "Producing instance of Job '" + jobDetail.getKey() + 
-                    "', class=" + jobClass.getName());
+            if (LogManager.getLogger(this).isDebugEnabled()) {
+                LogManager.getLogger(this).debug(
+                        "Producing instance of Job '" + jobDetail.getKey() +
+                                "', class=" + jobClass.getName());
             }
             
             return jobClass.newInstance();

@@ -17,14 +17,10 @@
 
 package org.quartz.impl.calendar;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Date;
-import java.util.SortedSet;
-import java.util.TimeZone;
-import java.util.TreeSet;
-
 import org.quartz.Calendar;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * <p>

@@ -16,6 +16,10 @@
  */
 package org.quartz.simpl;
 
+import org.apache.logging.log4j.LogManager;
+import org.quartz.*;
+import org.quartz.spi.TriggerFiredBundle;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -24,13 +28,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerContext;
-import org.quartz.SchedulerException;
-import org.quartz.spi.TriggerFiredBundle;
 
 
 
@@ -229,9 +226,9 @@ public class PropertySettingJobFactory extends SimpleJobFactory {
         
         if (isWarnIfPropertyNotFound()) {
             if (e == null) {
-                getLog().warn(message);
+                LogManager.getLogger(this).warn(message);
             } else {
-                getLog().warn(message, e);
+                LogManager.getLogger(this).warn(message, e);
             }
         }
     }

@@ -15,56 +15,30 @@
  */
 package org.quartz;
 
-import java.io.*;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class CronExpressionTest extends SerializationTestSupport {
+import static org.junit.Assert.*;
+
+public class CronExpressionTest {
     private static final String[] VERSIONS = new String[] {"1.5.2"};
 
     private static final TimeZone EST_TIME_ZONE = TimeZone.getTimeZone("US/Eastern"); 
 
-    /**
-     * Get the object to serialize when generating serialized file for future
-     * tests, and against which to validate deserialized object.
-     */
-    @Override
-    protected Object getTargetObject() throws ParseException {
-        CronExpression cronExpression = new CronExpression("0 15 10 * * ? 2005");
-        cronExpression.setTimeZone(EST_TIME_ZONE);
-        
-        return cronExpression;
-    }
-    
-    /**
-     * Get the Quartz versions for which we should verify
-     * serialization backwards compatibility.
-     */
-    @Override
-    protected String[] getVersions() {
-        return VERSIONS;
-    }
-    
-    /**
-     * Verify that the target object and the object we just deserialized 
-     * match.
-     */
-    @Override
-    protected void verifyMatch(Object target, Object deserialized) {
-        CronExpression targetCronExpression = (CronExpression)target;
-        CronExpression deserializedCronExpression = (CronExpression)deserialized;
-        
-        assertNotNull(deserializedCronExpression);
-        assertEquals(targetCronExpression.getCronExpression(), deserializedCronExpression.getCronExpression());
-        assertEquals(targetCronExpression.getTimeZone(), deserializedCronExpression.getTimeZone());
-    }
+
     
     /*
      * Test method for 'org.quartz.CronExpression.isSatisfiedBy(Date)'.
      */
+    @Test
     public void testIsSatisfiedBy() throws Exception {
         CronExpression cronExpression = new CronExpression("0 15 10 * * ? 2005");
         
@@ -85,6 +59,7 @@ public class CronExpressionTest extends SerializationTestSupport {
         assertFalse(cronExpression.isSatisfiedBy(cal.getTime()));
     }
 
+    @Test
     public void testLastDayOffset() throws Exception {
         CronExpression cronExpression = new CronExpression("0 15 10 L-2 * ? 2010");
         
@@ -116,6 +91,7 @@ public class CronExpressionTest extends SerializationTestSupport {
     /*
      * QUARTZ-571: Showing that expressions with months correctly serialize.
      */
+    @Test
     public void testQuartz571() throws Exception {
         CronExpression cronExpression = new CronExpression("19 15 10 4 Apr ? ");
 
@@ -136,7 +112,8 @@ public class CronExpressionTest extends SerializationTestSupport {
      * QTZ-259 : last day offset causes repeating fire time
      * 
      */
- 	public void testQtz259() throws Exception {
+    @Test
+    public void testQtz259() throws Exception {
  		CronScheduleBuilder schedBuilder = CronScheduleBuilder.cronSchedule("0 0 0 L-2 * ? *");
  		Trigger trigger = TriggerBuilder.newTrigger().withIdentity("test").withSchedule(schedBuilder).build();
  				
@@ -154,7 +131,8 @@ public class CronExpressionTest extends SerializationTestSupport {
      * QTZ-259 : last day offset causes repeating fire time
      * 
      */
- 	public void testQtz259LW() throws Exception {
+    @Test
+    public void testQtz259LW() throws Exception {
  		CronScheduleBuilder schedBuilder = CronScheduleBuilder.cronSchedule("0 0 0 LW * ? *");
  		Trigger trigger = TriggerBuilder.newTrigger().withIdentity("test").withSchedule(schedBuilder).build();
  				
@@ -171,6 +149,7 @@ public class CronExpressionTest extends SerializationTestSupport {
     /*
      * QUARTZ-574: Showing that storeExpressionVals correctly calculates the month number
      */
+    @Test
     public void testQuartz574() {
         try {
             new CronExpression("* * * * Foo ? ");
@@ -189,6 +168,7 @@ public class CronExpressionTest extends SerializationTestSupport {
         }
     }
 
+    @Test
     public void testQuartz621() {
         try {
             new CronExpression("0 0 * * * *");
@@ -213,6 +193,7 @@ public class CronExpressionTest extends SerializationTestSupport {
         }
     }
 
+    @Test
     public void testQuartz640() throws ParseException {
         try {
             new CronExpression("0 43 9 1,5,29,L * ?");
@@ -241,8 +222,8 @@ public class CronExpressionTest extends SerializationTestSupport {
             fail("Unexpected ParseException thrown for supported '5L' expression.");
         }
     }
-    
-    
+
+    @Test
     public void testQtz96() throws ParseException {
         try {
             new CronExpression("0/5 * * 32W 1 ?");
@@ -253,6 +234,7 @@ public class CronExpressionTest extends SerializationTestSupport {
         }
     }
 
+    @Test
     public void testQtz395_CopyConstructorMustPreserveTimeZone () throws ParseException {
         TimeZone nonDefault = TimeZone.getTimeZone("Europe/Brussels");
         if (nonDefault.equals(TimeZone.getDefault())) {
@@ -263,11 +245,6 @@ public class CronExpressionTest extends SerializationTestSupport {
 
         CronExpression copyCronExpression = new CronExpression(cronExpression);
         assertEquals(nonDefault, copyCronExpression.getTimeZone());
-    }
-    
-    // execute with version number to generate a new version's serialized form
-    public static void main(String[] args) throws Exception {
-        new CronExpressionTest().writeJobDataFile("1.5.2");
     }
 
 }

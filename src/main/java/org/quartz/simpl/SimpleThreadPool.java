@@ -17,8 +17,7 @@
 
 package org.quartz.simpl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
 import org.quartz.SchedulerConfigException;
 import org.quartz.spi.ThreadPool;
 
@@ -48,14 +47,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SimpleThreadPool implements ThreadPool {
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Data members.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     private int count = -1;
 
     private int prio = Thread.NORM_PRIORITY;
@@ -79,17 +70,7 @@ public class SimpleThreadPool implements ThreadPool {
 
     private String threadNamePrefix;
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    
     private String schedulerInstanceName;
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Constructors.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
 
     /**
      * <p>
@@ -119,18 +100,6 @@ public class SimpleThreadPool implements ThreadPool {
     public SimpleThreadPool(int threadCount, int threadPriority) {
         setThreadCount(threadCount);
         setThreadPriority(threadPriority);
-    }
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     * 
-     * Interface.
-     * 
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    public Logger getLog() {
-        return log;
     }
 
     public int getPoolSize() {
@@ -265,7 +234,7 @@ public class SimpleThreadPool implements ThreadPool {
 
 
         if (isThreadsInheritContextClassLoaderOfInitializingThread()) {
-            getLog().info(
+            LogManager.getLogger(this).info(
                     "Job execution threads will use class loader of thread: "
                             + Thread.currentThread().getName());
         }
@@ -325,7 +294,7 @@ public class SimpleThreadPool implements ThreadPool {
     public void shutdown(boolean waitForJobsToComplete) {
 
         synchronized (nextRunnableLock) {
-            getLog().debug("Shutting down threadpool...");
+            LogManager.getLogger(this).debug("Shutting down threadpool...");
 
             isShutdown = true;
 
@@ -362,7 +331,7 @@ public class SimpleThreadPool implements ThreadPool {
                     while (busyWorkers.size() > 0) {
                         WorkerThread wt = (WorkerThread) busyWorkers.getFirst();
                         try {
-                            getLog().debug(
+                            LogManager.getLogger(this).debug(
                                     "Waiting for thread " + wt.getName()
                                             + " to shut down");
 
@@ -390,9 +359,9 @@ public class SimpleThreadPool implements ThreadPool {
                     }
                 }
 
-                getLog().debug("No executing jobs remaining, all threads stopped.");
+                LogManager.getLogger(this).debug("No executing jobs remaining, all threads stopped.");
             }
-            getLog().debug("Shutdown of threadpool complete.");
+            LogManager.getLogger(this).debug("Shutdown of threadpool complete.");
         }
     }
 
@@ -576,13 +545,13 @@ public class SimpleThreadPool implements ThreadPool {
                 } catch (InterruptedException unblock) {
                     // do nothing (loop will terminate if shutdown() was called
                     try {
-                        getLog().error("Worker thread was interrupt()'ed.", unblock);
+                        LogManager.getLogger(this).error("Worker thread was interrupt()'ed.", unblock);
                     } catch(Exception e) {
                         // ignore to help with a tomcat glitch
                     }
                 } catch (Throwable exceptionInRunnable) {
                     try {
-                        getLog().error("Error while executing the Runnable: ",
+                        LogManager.getLogger(this).error("Error while executing the Runnable: ",
                             exceptionInRunnable);
                     } catch(Exception e) {
                         // ignore to help with a tomcat glitch
@@ -609,7 +578,7 @@ public class SimpleThreadPool implements ThreadPool {
 
             //if (log.isDebugEnabled())
             try {
-                getLog().debug("WorkerThread is shut down.");
+                LogManager.getLogger(this).debug("WorkerThread is shut down.");
             } catch(Exception e) {
                 // ignore to help with a tomcat glitch
             }

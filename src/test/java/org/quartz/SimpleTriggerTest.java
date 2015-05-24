@@ -15,19 +15,21 @@
  */
 package org.quartz;
 
+import org.junit.Test;
+import org.quartz.impl.triggers.SimpleTriggerImpl;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.quartz.impl.triggers.SimpleTriggerImpl;
+import static org.junit.Assert.*;
 
 
 /**
  * Unit test for SimpleTrigger serialization backwards compatibility.
  */
-public class SimpleTriggerTest extends SerializationTestSupport {
-    private static final String[] VERSIONS = new String[] {"2.0"};
+public class SimpleTriggerTest {
 
     private static final TimeZone EST_TIME_ZONE = TimeZone.getTimeZone("US/Eastern"); 
     private static final Calendar START_TIME = Calendar.getInstance();
@@ -42,61 +44,9 @@ public class SimpleTriggerTest extends SerializationTestSupport {
         END_TIME.set(2008, Calendar.MAY, 2, 20, 15, 30);
         END_TIME.setTimeZone(EST_TIME_ZONE);
     }
-    
-    /**
-     * Get the object to serialize when generating serialized file for future
-     * tests, and against which to validate deserialized object.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    protected Object getTargetObject() {
-        JobDataMap jobDataMap = new JobDataMap();
-        jobDataMap.put("A", "B");
-        
-        SimpleTriggerImpl t = new SimpleTriggerImpl("SimpleTrigger", "SimpleGroup",
-                "JobName", "JobGroup", START_TIME.getTime(),
-                END_TIME.getTime(), 5, 1000);
-        t.setCalendarName("MyCalendar");
-        t.setDescription("SimpleTriggerDesc");
-        t.setJobDataMap(jobDataMap);
-        t.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT);
 
-        return t;
-    }
-    
-    /**
-     * Get the Quartz versions for which we should verify
-     * serialization backwards compatibility.
-     */
-    @Override
-    protected String[] getVersions() {
-        return VERSIONS;
-    }
-    
-    /**
-     * Verify that the target object and the object we just deserialized 
-     * match.
-     */
-    @Override
-    protected void verifyMatch(Object target, Object deserialized) {
-        SimpleTriggerImpl targetSimpleTrigger = (SimpleTriggerImpl)target;
-        SimpleTriggerImpl deserializedSimpleTrigger = (SimpleTriggerImpl)deserialized;
-        
-        assertNotNull(deserializedSimpleTrigger);
-        assertEquals(targetSimpleTrigger.getName(), deserializedSimpleTrigger.getName());
-        assertEquals(targetSimpleTrigger.getGroup(), deserializedSimpleTrigger.getGroup());
-        assertEquals(targetSimpleTrigger.getJobName(), deserializedSimpleTrigger.getJobName());
-        assertEquals(targetSimpleTrigger.getJobGroup(), deserializedSimpleTrigger.getJobGroup());
-        assertEquals(targetSimpleTrigger.getStartTime(), deserializedSimpleTrigger.getStartTime());
-        assertEquals(targetSimpleTrigger.getEndTime(), deserializedSimpleTrigger.getEndTime());
-        assertEquals(targetSimpleTrigger.getRepeatCount(), deserializedSimpleTrigger.getRepeatCount());
-        assertEquals(targetSimpleTrigger.getRepeatInterval(), deserializedSimpleTrigger.getRepeatInterval());
-        assertEquals(targetSimpleTrigger.getCalendarName(), deserializedSimpleTrigger.getCalendarName());
-        assertEquals(targetSimpleTrigger.getDescription(), deserializedSimpleTrigger.getDescription());
-        assertEquals(targetSimpleTrigger.getJobDataMap(), deserializedSimpleTrigger.getJobDataMap());
-        assertEquals(targetSimpleTrigger.getMisfireInstruction(), deserializedSimpleTrigger.getMisfireInstruction());
-    }
-    
+
+    @Test
     public void testUpdateAfterMisfire() {
         
         Calendar startTime = Calendar.getInstance();
@@ -116,7 +66,8 @@ public class SimpleTriggerTest extends SerializationTestSupport {
         assertEquals(endTime.getTime(), simpleTrigger.getEndTime());
         assertNull(simpleTrigger.getNextFireTime());
     }
-    
+
+    @Test
     public void testGetFireTimeAfter() {
         SimpleTriggerImpl simpleTrigger = new SimpleTriggerImpl();
 
@@ -127,7 +78,8 @@ public class SimpleTriggerTest extends SerializationTestSupport {
         Date fireTimeAfter = simpleTrigger.getFireTimeAfter(new Date(34));
         assertEquals(40, fireTimeAfter.getTime());
     }
-    
+
+    @Test
     public void testClone() {
         SimpleTriggerImpl simpleTrigger = new SimpleTriggerImpl();
         
@@ -154,10 +106,12 @@ public class SimpleTriggerTest extends SerializationTestSupport {
     }
     
     // NPE in equals()
+    @Test
     public void testQuartz665() {
         new SimpleTriggerImpl().equals(new SimpleTriggerImpl());
     }
-    
+
+    @Test
     public void testMisfireInstructionValidity() throws ParseException {
         SimpleTriggerImpl trigger = new SimpleTriggerImpl();
 
@@ -181,12 +135,6 @@ public class SimpleTriggerTest extends SerializationTestSupport {
         }
         catch(Exception e) {
         }
-    }
-
-    
-    // execute with version number to generate a new version's serialized form
-    public static void main(String[] args) throws Exception {
-        new SimpleTriggerTest().writeJobDataFile("2.0");
     }
     
 }

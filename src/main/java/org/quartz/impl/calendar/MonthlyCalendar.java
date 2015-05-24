@@ -17,10 +17,10 @@
 
 package org.quartz.impl.calendar;
 
+import org.quartz.Calendar;
+
 import java.io.Serializable;
 import java.util.TimeZone;
-
-import org.quartz.Calendar;
 
 /**
  * <p>

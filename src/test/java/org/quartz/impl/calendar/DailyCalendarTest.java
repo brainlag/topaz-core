@@ -15,14 +15,17 @@
  */
 package org.quartz.impl.calendar;
 
-import org.quartz.SerializationTestSupport;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for DailyCalendar.
  */
-public class DailyCalendarTest extends SerializationTestSupport {
+public class DailyCalendarTest {
     private static final String[] VERSIONS = new String[] {"1.5.2"};
-    
+
+    @Test
     public void testStringStartEndTimes() {
         DailyCalendar dailyCalendar = new DailyCalendar("1:20", "14:50");
         assertTrue(dailyCalendar.toString().indexOf("01:20:00:000 - 14:50:00:000") > 0);
@@ -30,7 +33,8 @@ public class DailyCalendarTest extends SerializationTestSupport {
         dailyCalendar = new DailyCalendar("1:20:1:456", "14:50:15:2");
         assertTrue(dailyCalendar.toString().indexOf("01:20:01:456 - 14:50:15:002") > 0);
     }
-    
+
+    @Test
     public void testStringInvertTimeRange() {
         DailyCalendar dailyCalendar = new DailyCalendar("1:20", "14:50");
         dailyCalendar.setInvertTimeRange(true);
@@ -39,42 +43,6 @@ public class DailyCalendarTest extends SerializationTestSupport {
         dailyCalendar.setInvertTimeRange(false);
         assertTrue(dailyCalendar.toString().indexOf("inverted: false") > 0);
     }
-    
-    /**
-     * Get the object to serialize when generating serialized file for future
-     * tests, and against which to validate deserialized object.
-     */
-    @Override
-    protected Object getTargetObject() {
-        DailyCalendar c = new DailyCalendar("01:20:01:456", "14:50:15:002");
-        c.setDescription("description");
-        c.setInvertTimeRange(true);
-        
-        return c;
-    }
-    
-    /**
-     * Get the Quartz versions for which we should verify
-     * serialization backwards compatibility.
-     */
-    @Override
-    protected String[] getVersions() {
-        return VERSIONS;
-    }
-    
-    /**
-     * Verify that the target object and the object we just deserialized 
-     * match.
-     */
-    @Override
-    protected void verifyMatch(Object target, Object deserialized) {
-        DailyCalendar targetCalendar = (DailyCalendar)target;
-        DailyCalendar deserializedCalendar = (DailyCalendar)deserialized;
-        
-        assertNotNull(deserializedCalendar);
-        assertEquals(targetCalendar.getDescription(), deserializedCalendar.getDescription());
-        assertTrue(deserializedCalendar.getInvertTimeRange());
-        assertNull(deserializedCalendar.getTimeZone());
-        assertTrue(deserializedCalendar.toString().indexOf("01:20:01:456 - 14:50:15:002") > 0);
-    }
+
+
 }

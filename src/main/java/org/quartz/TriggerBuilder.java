@@ -17,10 +17,10 @@
 
 package org.quartz;
 
-import java.util.Date;
-
 import org.quartz.spi.MutableTrigger;
 import org.quartz.utils.Key;
+
+import java.util.Date;
 
 /**
  * <code>TriggerBuilder</code> is used to instantiate {@link Trigger}s.

@@ -16,13 +16,13 @@
  */
 package org.quartz.integrations.tests;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -33,7 +33,7 @@ import java.util.Properties;
  * @author Zemian Deng
  */
 public class QuartzMemoryTestSupport {
-    protected static final Logger LOG = LoggerFactory.getLogger(QuartzMemoryTestSupport.class);
+    protected static final Logger LOG = LogManager.getLogger(QuartzMemoryTestSupport.class);
     protected Scheduler scheduler;
 
     @Before

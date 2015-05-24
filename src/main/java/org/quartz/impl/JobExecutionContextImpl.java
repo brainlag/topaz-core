@@ -18,19 +18,12 @@
 
 package org.quartz.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-
-import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.Scheduler;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
+import org.quartz.*;
 import org.quartz.spi.OperableTrigger;
 import org.quartz.spi.TriggerFiredBundle;
+
+import java.util.Date;
+import java.util.HashMap;
 
 
 public class JobExecutionContextImpl implements java.io.Serializable, JobExecutionContext {

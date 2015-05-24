@@ -17,16 +17,9 @@
 
 package org.quartz.spi;
 
-import java.util.Date;
+import org.quartz.*;
 
-import org.quartz.Calendar;
-import org.quartz.CronTrigger;
-import org.quartz.JobDataMap;
-import org.quartz.JobKey;
-import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
-import org.quartz.TriggerUtils;
+import java.util.Date;
 
 public interface MutableTrigger extends Trigger {
 
@@ -98,7 +91,6 @@ public interface MutableTrigger extends Trigger {
      * repeat settings). 
      * </p>
      * 
-     * @see TriggerUtils#computeEndTimeToAllowParticularNumberOfFirings(Trigger, Calendar, int)
      */
     public void setEndTime(Date endTime);
 
@@ -116,7 +108,6 @@ public interface MutableTrigger extends Trigger {
      * </p>
      * 
      * @see #MISFIRE_INSTRUCTION_SMART_POLICY
-     * @see #updateAfterMisfire(Calendar)
      * @see SimpleTrigger
      * @see CronTrigger
      */

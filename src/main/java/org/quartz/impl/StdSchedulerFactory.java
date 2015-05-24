@@ -17,24 +17,16 @@
 
 package org.quartz.impl;
 
+import org.apache.logging.log4j.LogManager;
 import org.quartz.*;
 import org.quartz.core.JobRunShellFactory;
 import org.quartz.core.QuartzScheduler;
 import org.quartz.core.QuartzSchedulerResources;
-import org.quartz.ee.jta.JTAAnnotationAwareJobRunShellFactory;
-import org.quartz.ee.jta.JTAJobRunShellFactory;
-import org.quartz.ee.jta.UserTransactionHelper;
-import org.quartz.impl.jdbcjobstore.JobStoreSupport;
-import org.quartz.impl.jdbcjobstore.Semaphore;
-import org.quartz.impl.jdbcjobstore.TablePrefixAware;
 import org.quartz.impl.matchers.EverythingMatcher;
-import org.quartz.management.ManagementRESTServiceConfiguration;
 import org.quartz.simpl.RAMJobStore;
 import org.quartz.simpl.SimpleThreadPool;
 import org.quartz.spi.*;
-import org.quartz.utils.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.quartz.utils.PropertiesParser;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -43,7 +35,6 @@ import java.beans.PropertyDescriptor;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Properties;
@@ -121,41 +112,11 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     public static final String PROP_SCHED_THREAD_NAME = "org.quartz.scheduler.threadName";
 
-    public static final String PROP_SCHED_SKIP_UPDATE_CHECK = "org.quartz.scheduler.skipUpdateCheck";
-
     public static final String PROP_SCHED_BATCH_TIME_WINDOW = "org.quartz.scheduler.batchTriggerAcquisitionFireAheadTimeWindow";
 
     public static final String PROP_SCHED_MAX_BATCH_SIZE = "org.quartz.scheduler.batchTriggerAcquisitionMaxCount";
 
-    public static final String PROP_SCHED_JMX_EXPORT = "org.quartz.scheduler.jmx.export";
-
-    public static final String PROP_SCHED_JMX_OBJECT_NAME = "org.quartz.scheduler.jmx.objectName";
-
-    public static final String PROP_SCHED_JMX_PROXY = "org.quartz.scheduler.jmx.proxy";
-
-    public static final String PROP_SCHED_JMX_PROXY_CLASS = "org.quartz.scheduler.jmx.proxy.class";
-    
-    public static final String PROP_SCHED_RMI_EXPORT = "org.quartz.scheduler.rmi.export";
-
-    public static final String PROP_SCHED_RMI_PROXY = "org.quartz.scheduler.rmi.proxy";
-
-    public static final String PROP_SCHED_RMI_HOST = "org.quartz.scheduler.rmi.registryHost";
-
-    public static final String PROP_SCHED_RMI_PORT = "org.quartz.scheduler.rmi.registryPort";
-
-    public static final String PROP_SCHED_RMI_SERVER_PORT = "org.quartz.scheduler.rmi.serverPort";
-
-    public static final String PROP_SCHED_RMI_CREATE_REGISTRY = "org.quartz.scheduler.rmi.createRegistry";
-
-    public static final String PROP_SCHED_RMI_BIND_NAME = "org.quartz.scheduler.rmi.bindName";
-
-    public static final String PROP_SCHED_WRAP_JOB_IN_USER_TX = "org.quartz.scheduler.wrapJobExecutionInUserTransaction";
-
-    public static final String PROP_SCHED_USER_TX_URL = "org.quartz.scheduler.userTransactionURL";
-
     public static final String PROP_SCHED_IDLE_WAIT_TIME = "org.quartz.scheduler.idleWaitTime";
-
-    public static final String PROP_SCHED_DB_FAILURE_RETRY_INTERVAL = "org.quartz.scheduler.dbFailureRetryInterval";
 
     public static final String PROP_SCHED_MAKE_SCHEDULER_THREAD_DAEMON = "org.quartz.scheduler.makeSchedulerThreadDaemon";
 
@@ -177,14 +138,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     public static final String PROP_THREAD_POOL_CLASS = "org.quartz.threadPool.class";
 
-    public static final String PROP_JOB_STORE_PREFIX = "org.quartz.jobStore";
-
-    public static final String PROP_JOB_STORE_LOCK_HANDLER_PREFIX = PROP_JOB_STORE_PREFIX + ".lockHandler";
-
-    public static final String PROP_JOB_STORE_LOCK_HANDLER_CLASS = PROP_JOB_STORE_LOCK_HANDLER_PREFIX + ".class";
-
-    public static final String PROP_TABLE_PREFIX = "tablePrefix";
-
     public static final String PROP_SCHED_NAME = "schedName";
 
     public static final String PROP_JOB_STORE_CLASS = "org.quartz.jobStore.class";
@@ -192,56 +145,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
     public static final String PROP_JOB_STORE_USE_PROP = "org.quartz.jobStore.useProperties";
 
     public static final String PROP_DATASOURCE_PREFIX = "org.quartz.dataSource";
-
-    public static final String PROP_CONNECTION_PROVIDER_CLASS = "connectionProvider.class";
-
-    /**
-     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_DRIVER}
-     */
-    @Deprecated
-    public static final String PROP_DATASOURCE_DRIVER = "driver";
-
-    /**
-     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_URL}
-     */
-    @Deprecated
-    public static final String PROP_DATASOURCE_URL = "URL";
-
-    /**
-     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_USER}
-     */
-    @Deprecated
-    public static final String PROP_DATASOURCE_USER = "user";
-
-    /**
-     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_PASSWORD}
-     */
-    @Deprecated
-    public static final String PROP_DATASOURCE_PASSWORD = "password";
-
-    /**
-     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_MAX_CONNECTIONS}
-     */
-    @Deprecated
-    public static final String PROP_DATASOURCE_MAX_CONNECTIONS = "maxConnections";
-
-    /**
-     * @deprecated Replaced with {@link PoolingConnectionProvider#DB_VALIDATION_QUERY}
-     */
-    @Deprecated
-    public static final String PROP_DATASOURCE_VALIDATION_QUERY = "validationQuery";
-
-    public static final String PROP_DATASOURCE_JNDI_URL = "jndiURL";
-
-    public static final String PROP_DATASOURCE_JNDI_ALWAYS_LOOKUP = "jndiAlwaysLookup";
-
-    public static final String PROP_DATASOURCE_JNDI_INITIAL = "java.naming.factory.initial";
-
-    public static final String PROP_DATASOURCE_JNDI_PROVDER = "java.naming.provider.url";
-
-    public static final String PROP_DATASOURCE_JNDI_PRINCIPAL = "java.naming.security.principal";
-
-    public static final String PROP_DATASOURCE_JNDI_CREDENTIALS = "java.naming.security.credentials";
 
     public static final String PROP_PLUGIN_PREFIX = "org.quartz.plugin";
 
@@ -281,18 +184,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
 
     private PropertiesParser cfg;
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    //  private Scheduler scheduler;
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Constructors.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * Create an uninitialized StdSchedulerFactory.
      */
@@ -317,18 +208,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
      */
     public StdSchedulerFactory(String fileName) throws SchedulerException {
         initialize(fileName);
-    }
-
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Interface.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
-    public Logger getLog() {
-        return log;
     }
 
     /**
@@ -463,7 +342,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         try {
             sysProps = System.getProperties();
         } catch (AccessControlException e) {
-            getLog().warn(
+            LogManager.getLogger(this).warn(
                 "Skipping overriding quartz properties with System properties " +
                 "during initialization because of an AccessControlException.  " +
                 "This is likely due to not having read/write access for " +
@@ -588,7 +467,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
         JobStore js = null;
         ThreadPool tp = null;
         QuartzScheduler qs = null;
-        DBConnectionManager dbMgr = null;
         String instanceIdGeneratorClass = null;
         Properties tProps = null;
         String userTXLocation = null;
@@ -627,18 +505,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
                     "org.quartz.simpl.SystemPropertyInstanceIdGenerator";
         }
 
-        userTXLocation = cfg.getStringProperty(PROP_SCHED_USER_TX_URL,
-                userTXLocation);
-        if (userTXLocation != null && userTXLocation.trim().length() == 0) {
-            userTXLocation = null;
-        }
-
-        classLoadHelperClass = cfg.getStringProperty(
-                PROP_SCHED_CLASS_LOAD_HELPER_CLASS,
-                "org.quartz.simpl.CascadingClassLoadHelper");
-        wrapJobInTx = cfg.getBooleanProperty(PROP_SCHED_WRAP_JOB_IN_USER_TX,
-                wrapJobInTx);
-
         jobFactoryClass = cfg.getStringProperty(
                 PROP_SCHED_JOB_FACTORY_CLASS, null);
 
@@ -647,11 +513,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
         if(idleWaitTime > -1 && idleWaitTime < 1000) {
             throw new SchedulerException("org.quartz.scheduler.idleWaitTime of less than 1000ms is not legal.");
         }
-        
-        dbFailureRetry = cfg.getLongProperty(PROP_SCHED_DB_FAILURE_RETRY_INTERVAL, dbFailureRetry);
-        if (dbFailureRetry < 0) {
-            throw new SchedulerException(PROP_SCHED_DB_FAILURE_RETRY_INTERVAL + " of less than 0 ms is not legal.");
-        }
 
         boolean makeSchedulerThreadDaemon =
             cfg.getBooleanProperty(PROP_SCHED_MAKE_SCHEDULER_THREAD_DAEMON);
@@ -659,116 +520,18 @@ public class StdSchedulerFactory implements SchedulerFactory {
         boolean threadsInheritInitalizersClassLoader =
             cfg.getBooleanProperty(PROP_SCHED_SCHEDULER_THREADS_INHERIT_CONTEXT_CLASS_LOADER_OF_INITIALIZING_THREAD);
 
-        boolean skipUpdateCheck = cfg.getBooleanProperty(PROP_SCHED_SKIP_UPDATE_CHECK, false);
         long batchTimeWindow = cfg.getLongProperty(PROP_SCHED_BATCH_TIME_WINDOW, 0L);
         int maxBatchSize = cfg.getIntProperty(PROP_SCHED_MAX_BATCH_SIZE, 1);
 
         boolean interruptJobsOnShutdown = cfg.getBooleanProperty(PROP_SCHED_INTERRUPT_JOBS_ON_SHUTDOWN, false);
         boolean interruptJobsOnShutdownWithWait = cfg.getBooleanProperty(PROP_SCHED_INTERRUPT_JOBS_ON_SHUTDOWN_WITH_WAIT, false);
 
-        boolean jmxExport = cfg.getBooleanProperty(PROP_SCHED_JMX_EXPORT);
-        String jmxObjectName = cfg.getStringProperty(PROP_SCHED_JMX_OBJECT_NAME);
-        
-        boolean jmxProxy = cfg.getBooleanProperty(PROP_SCHED_JMX_PROXY);
-        String jmxProxyClass = cfg.getStringProperty(PROP_SCHED_JMX_PROXY_CLASS);
-
-        boolean rmiExport = cfg.getBooleanProperty(PROP_SCHED_RMI_EXPORT, false);
-        boolean rmiProxy = cfg.getBooleanProperty(PROP_SCHED_RMI_PROXY, false);
-        String rmiHost = cfg.getStringProperty(PROP_SCHED_RMI_HOST, "localhost");
-        int rmiPort = cfg.getIntProperty(PROP_SCHED_RMI_PORT, 1099);
-        int rmiServerPort = cfg.getIntProperty(PROP_SCHED_RMI_SERVER_PORT, -1);
-        String rmiCreateRegistry = cfg.getStringProperty(
-                PROP_SCHED_RMI_CREATE_REGISTRY,
-                QuartzSchedulerResources.CREATE_REGISTRY_NEVER);
-        String rmiBindName = cfg.getStringProperty(PROP_SCHED_RMI_BIND_NAME);
-
-        if (jmxProxy && rmiProxy) {
-            throw new SchedulerConfigException("Cannot proxy both RMI and JMX.");
-        }
-        
-        boolean managementRESTServiceEnabled = cfg.getBooleanProperty(MANAGEMENT_REST_SERVICE_ENABLED, false);
-        String managementRESTServiceHostAndPort = cfg.getStringProperty(MANAGEMENT_REST_SERVICE_HOST_PORT, "0.0.0.0:9889");
-
         Properties schedCtxtProps = cfg.getPropertyGroup(PROP_SCHED_CONTEXT_PREFIX, true);
 
-        // If Proxying to remote scheduler, short-circuit here...
-        // ~~~~~~~~~~~~~~~~~~
-        if (rmiProxy) {
-
-            if (autoId) {
-                schedInstId = DEFAULT_INSTANCE_ID;
-            }
-
-            String uid = (rmiBindName == null) ? QuartzSchedulerResources.getUniqueIdentifier(
-                    schedName, schedInstId) : rmiBindName;
-
-            RemoteScheduler remoteScheduler = new RemoteScheduler(uid, rmiHost, rmiPort);
-
-            schedRep.bind(remoteScheduler);
-
-            return remoteScheduler;
-        }
-
-
-        // Create class load helper
-        ClassLoadHelper loadHelper = null;
-        try {
-            loadHelper = (ClassLoadHelper) loadClass(classLoadHelperClass)
-                    .newInstance();
-        } catch (Exception e) {
-            throw new SchedulerConfigException(
-                    "Unable to instantiate class load helper class: "
-                            + e.getMessage(), e);
-        }
-        loadHelper.initialize();
-
-        // If Proxying to remote JMX scheduler, short-circuit here...
-        // ~~~~~~~~~~~~~~~~~~
-        if (jmxProxy) {
-            if (autoId) {
-                schedInstId = DEFAULT_INSTANCE_ID;
-            }
-
-            if (jmxProxyClass == null) {
-                throw new SchedulerConfigException("No JMX Proxy Scheduler class provided");
-            }
-
-            RemoteMBeanScheduler jmxScheduler = null;
-            try {
-                jmxScheduler = (RemoteMBeanScheduler)loadHelper.loadClass(jmxProxyClass)
-                        .newInstance();
-            } catch (Exception e) {
-                throw new SchedulerConfigException(
-                        "Unable to instantiate RemoteMBeanScheduler class.", e);
-            }
-
-            if (jmxObjectName == null) {
-                jmxObjectName = QuartzSchedulerResources.generateJMXObjectName(schedName, schedInstId);
-            }
-
-            jmxScheduler.setSchedulerObjectName(jmxObjectName);
-
-            tProps = cfg.getPropertyGroup(PROP_SCHED_JMX_PROXY, true);
-            try {
-                setBeanProps(jmxScheduler, tProps);
-            } catch (Exception e) {
-                initException = new SchedulerException("RemoteMBeanScheduler class '"
-                        + jmxProxyClass + "' props could not be configured.", e);
-                throw initException;
-            }
-
-            jmxScheduler.initialize();
-
-            schedRep.bind(jmxScheduler);
-
-            return jmxScheduler;
-        }
-
-        
         JobFactory jobFactory = null;
         if(jobFactoryClass != null) {
             try {
-                jobFactory = (JobFactory) loadHelper.loadClass(jobFactoryClass)
+                jobFactory = (JobFactory) Class.forName(jobFactoryClass)
                         .newInstance();
             } catch (Exception e) {
                 throw new SchedulerConfigException(
@@ -789,7 +552,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         InstanceIdGenerator instanceIdGenerator = null;
         if(instanceIdGeneratorClass != null) {
             try {
-                instanceIdGenerator = (InstanceIdGenerator) loadHelper.loadClass(instanceIdGeneratorClass)
+                instanceIdGenerator = (InstanceIdGenerator) Class.forName(instanceIdGeneratorClass)
                     .newInstance();
             } catch (Exception e) {
                 throw new SchedulerConfigException(
@@ -819,7 +582,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         }
 
         try {
-            tp = (ThreadPool) loadHelper.loadClass(tpClass).newInstance();
+            tp = (ThreadPool) Class.forName(tpClass).newInstance();
         } catch (Exception e) {
             initException = new SchedulerException("ThreadPool class '"
                     + tpClass + "' could not be instantiated.", e);
@@ -847,7 +610,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
         }
 
         try {
-            js = (JobStore) loadHelper.loadClass(jsClass).newInstance();
+            js = (JobStore) Class.forName(jsClass).newInstance();
         } catch (Exception e) {
             initException = new SchedulerException("JobStore class '" + jsClass
                     + "' could not be instantiated.", e);
@@ -855,164 +618,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
         }
 
         SchedulerDetailsSetter.setDetails(js, schedName, schedInstId);
-
-        tProps = cfg.getPropertyGroup(PROP_JOB_STORE_PREFIX, true, new String[] {PROP_JOB_STORE_LOCK_HANDLER_PREFIX});
-        try {
-            setBeanProps(js, tProps);
-        } catch (Exception e) {
-            initException = new SchedulerException("JobStore class '" + jsClass
-                    + "' props could not be configured.", e);
-            throw initException;
-        }
-
-        if (js instanceof JobStoreSupport) {
-            // Install custom lock handler (Semaphore)
-            String lockHandlerClass = cfg.getStringProperty(PROP_JOB_STORE_LOCK_HANDLER_CLASS);
-            if (lockHandlerClass != null) {
-                try {
-                    Semaphore lockHandler = (Semaphore)loadHelper.loadClass(lockHandlerClass).newInstance();
-
-                    tProps = cfg.getPropertyGroup(PROP_JOB_STORE_LOCK_HANDLER_PREFIX, true);
-
-                    // If this lock handler requires the table prefix, add it to its properties.
-                    if (lockHandler instanceof TablePrefixAware) {
-                        tProps.setProperty(
-                                PROP_TABLE_PREFIX, ((JobStoreSupport)js).getTablePrefix());
-                        tProps.setProperty(
-                                PROP_SCHED_NAME, schedName);
-                    }
-
-                    try {
-                        setBeanProps(lockHandler, tProps);
-                    } catch (Exception e) {
-                        initException = new SchedulerException("JobStore LockHandler class '" + lockHandlerClass
-                                + "' props could not be configured.", e);
-                        throw initException;
-                    }
-
-                    ((JobStoreSupport)js).setLockHandler(lockHandler);
-                    getLog().info("Using custom data access locking (synchronization): " + lockHandlerClass);
-                } catch (Exception e) {
-                    initException = new SchedulerException("JobStore LockHandler class '" + lockHandlerClass
-                            + "' could not be instantiated.", e);
-                    throw initException;
-                }
-            }
-        }
-
-        // Set up any DataSources
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        String[] dsNames = cfg.getPropertyGroups(PROP_DATASOURCE_PREFIX);
-        for (int i = 0; i < dsNames.length; i++) {
-            PropertiesParser pp = new PropertiesParser(cfg.getPropertyGroup(
-                    PROP_DATASOURCE_PREFIX + "." + dsNames[i], true));
-
-            String cpClass = pp.getStringProperty(PROP_CONNECTION_PROVIDER_CLASS, null);
-
-            // custom connectionProvider...
-            if(cpClass != null) {
-                ConnectionProvider cp = null;
-                try {
-                    cp = (ConnectionProvider) loadHelper.loadClass(cpClass).newInstance();
-                } catch (Exception e) {
-                    initException = new SchedulerException("ConnectionProvider class '" + cpClass
-                            + "' could not be instantiated.", e);
-                    throw initException;
-                }
-
-                try {
-                    // remove the class name, so it isn't attempted to be set
-                    pp.getUnderlyingProperties().remove(
-                            PROP_CONNECTION_PROVIDER_CLASS);
-
-                    if (cp instanceof PoolingConnectionProvider) {
-                        populateProviderWithExtraProps((PoolingConnectionProvider)cp, pp.getUnderlyingProperties());
-                    } else {
-                        setBeanProps(cp, pp.getUnderlyingProperties());
-                    }
-                    cp.initialize();
-                } catch (Exception e) {
-                    initException = new SchedulerException("ConnectionProvider class '" + cpClass
-                            + "' props could not be configured.", e);
-                    throw initException;
-                }
-
-                dbMgr = DBConnectionManager.getInstance();
-                dbMgr.addConnectionProvider(dsNames[i], cp);
-            } else {
-                String dsJndi = pp.getStringProperty(PROP_DATASOURCE_JNDI_URL, null);
-
-                if (dsJndi != null) {
-                    boolean dsAlwaysLookup = pp.getBooleanProperty(
-                            PROP_DATASOURCE_JNDI_ALWAYS_LOOKUP);
-                    String dsJndiInitial = pp.getStringProperty(
-                            PROP_DATASOURCE_JNDI_INITIAL);
-                    String dsJndiProvider = pp.getStringProperty(
-                            PROP_DATASOURCE_JNDI_PROVDER);
-                    String dsJndiPrincipal = pp.getStringProperty(
-                            PROP_DATASOURCE_JNDI_PRINCIPAL);
-                    String dsJndiCredentials = pp.getStringProperty(
-                            PROP_DATASOURCE_JNDI_CREDENTIALS);
-                    Properties props = null;
-                    if (null != dsJndiInitial || null != dsJndiProvider
-                            || null != dsJndiPrincipal || null != dsJndiCredentials) {
-                        props = new Properties();
-                        if (dsJndiInitial != null) {
-                            props.put(PROP_DATASOURCE_JNDI_INITIAL,
-                                    dsJndiInitial);
-                        }
-                        if (dsJndiProvider != null) {
-                            props.put(PROP_DATASOURCE_JNDI_PROVDER,
-                                    dsJndiProvider);
-                        }
-                        if (dsJndiPrincipal != null) {
-                            props.put(PROP_DATASOURCE_JNDI_PRINCIPAL,
-                                    dsJndiPrincipal);
-                        }
-                        if (dsJndiCredentials != null) {
-                            props.put(PROP_DATASOURCE_JNDI_CREDENTIALS,
-                                    dsJndiCredentials);
-                        }
-                    }
-                    JNDIConnectionProvider cp = new JNDIConnectionProvider(dsJndi,
-                            props, dsAlwaysLookup);
-                    dbMgr = DBConnectionManager.getInstance();
-                    dbMgr.addConnectionProvider(dsNames[i], cp);
-                } else {
-                    String dsDriver = pp.getStringProperty(PoolingConnectionProvider.DB_DRIVER);
-                    String dsURL = pp.getStringProperty(PoolingConnectionProvider.DB_URL);
-
-                    if (dsDriver == null) {
-                        initException = new SchedulerException(
-                                "Driver not specified for DataSource: "
-                                        + dsNames[i]);
-                        throw initException;
-                    }
-                    if (dsURL == null) {
-                        initException = new SchedulerException(
-                                "DB URL not specified for DataSource: "
-                                        + dsNames[i]);
-                        throw initException;
-                    }
-                    try {
-                        PoolingConnectionProvider cp = new PoolingConnectionProvider(pp.getUnderlyingProperties());
-                        dbMgr = DBConnectionManager.getInstance();
-                        dbMgr.addConnectionProvider(dsNames[i], cp);
-
-                        // Populate the underlying C3P0 data source pool properties
-                        populateProviderWithExtraProps(cp, pp.getUnderlyingProperties());
-                    } catch (Exception sqle) {
-                        initException = new SchedulerException(
-                                "Could not initialize DataSource: " + dsNames[i],
-                                sqle);
-                        throw initException;
-                    }
-                }
-
-            }
-
-        }
 
         // Set up any SchedulerPlugins
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1033,8 +638,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             }
             SchedulerPlugin plugin = null;
             try {
-                plugin = (SchedulerPlugin)
-                        loadHelper.loadClass(plugInClass).newInstance();
+                plugin = (SchedulerPlugin) Class.forName(plugInClass).newInstance();
             } catch (Exception e) {
                 initException = new SchedulerException(
                         "SchedulerPlugin class '" + plugInClass
@@ -1074,7 +678,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             JobListener listener = null;
             try {
                 listener = (JobListener)
-                       loadHelper.loadClass(listenerClass).newInstance();
+                        Class.forName(listenerClass).newInstance();
             } catch (Exception e) {
                 initException = new SchedulerException(
                         "JobListener class '" + listenerClass
@@ -1122,7 +726,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             TriggerListener listener = null;
             try {
                 listener = (TriggerListener)
-                       loadHelper.loadClass(listenerClass).newInstance();
+                        Class.forName(listenerClass).newInstance();
             } catch (Exception e) {
                 initException = new SchedulerException(
                         "TriggerListener class '" + listenerClass
@@ -1159,8 +763,8 @@ public class StdSchedulerFactory implements SchedulerFactory {
         if (threadExecutorClass != null) {
             tProps = cfg.getPropertyGroup(PROP_THREAD_EXECUTOR, true);
             try {
-                threadExecutor = (ThreadExecutor) loadHelper.loadClass(threadExecutorClass).newInstance();
-                log.info("Using custom implementation for ThreadExecutor: " + threadExecutorClass);
+                threadExecutor = (ThreadExecutor) Class.forName(threadExecutorClass).newInstance();
+                LogManager.getLogger(this).info("Using custom implementation for ThreadExecutor: " + threadExecutorClass);
 
                 setBeanProps(threadExecutor, tProps);
             } catch (Exception e) {
@@ -1169,7 +773,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
                 throw initException;
             }
         } else {
-            log.info("Using default implementation for ThreadExecutor");
+            LogManager.getLogger(this).info("Using default implementation for ThreadExecutor");
             threadExecutor = new DefaultThreadExecutor();
         }
 
@@ -1178,19 +782,10 @@ public class StdSchedulerFactory implements SchedulerFactory {
         // Fire everything up
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         try {
-                
-    
-            JobRunShellFactory jrsf = null; // Create correct run-shell factory...
-    
-            if (userTXLocation != null) {
-                UserTransactionHelper.setUserTxLocation(userTXLocation);
-            }
-    
-            if (wrapJobInTx) {
-                jrsf = new JTAJobRunShellFactory();
-            } else {
-                jrsf = new JTAAnnotationAwareJobRunShellFactory();
-            }
+
+
+            JobRunShellFactory jrsf = new StdJobRunShellFactory();
+
     
             if (autoId) {
                 try {
@@ -1199,40 +794,11 @@ public class StdSchedulerFactory implements SchedulerFactory {
                       schedInstId = instanceIdGenerator.generateInstanceId();
                   }
                 } catch (Exception e) {
-                    getLog().error("Couldn't generate instance Id!", e);
+                    LogManager.getLogger(this).error("Couldn't generate instance Id!", e);
                     throw new IllegalStateException("Cannot run without an instance id.");
                 }
             }
 
-            if (js.getClass().getName().startsWith("org.terracotta.quartz")) {
-                try {
-                    String uuid = (String) js.getClass().getMethod("getUUID").invoke(js);
-                    if(schedInstId.equals(DEFAULT_INSTANCE_ID)) {
-                        schedInstId = "TERRACOTTA_CLUSTERED,node=" + uuid;
-                        if (jmxObjectName == null) {
-                            jmxObjectName = QuartzSchedulerResources.generateJMXObjectName(schedName, schedInstId);
-                        }
-                    } else if(jmxObjectName == null) {
-                        jmxObjectName = QuartzSchedulerResources.generateJMXObjectName(schedName, schedInstId + ",node=" + uuid);
-                    }
-                } catch(Exception e) {
-                    throw new RuntimeException("Problem obtaining node id from TerracottaJobStore.", e);
-                }
-
-                if(null == cfg.getStringProperty(PROP_SCHED_JMX_EXPORT)) {
-                    jmxExport = true;
-                }
-            }
-            
-            if (js instanceof JobStoreSupport) {
-                JobStoreSupport jjs = (JobStoreSupport)js;
-                jjs.setDbRetryInterval(dbFailureRetry);
-                if(threadsInheritInitalizersClassLoader)
-                    jjs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitalizersClassLoader);
-                
-                jjs.setThreadExecutor(threadExecutor);
-            }
-    
             QuartzSchedulerResources rsrcs = new QuartzSchedulerResources();
             rsrcs.setName(schedName);
             rsrcs.setThreadName(threadName);
@@ -1240,28 +806,10 @@ public class StdSchedulerFactory implements SchedulerFactory {
             rsrcs.setJobRunShellFactory(jrsf);
             rsrcs.setMakeSchedulerThreadDaemon(makeSchedulerThreadDaemon);
             rsrcs.setThreadsInheritInitializersClassLoadContext(threadsInheritInitalizersClassLoader);
-            rsrcs.setRunUpdateCheck(!skipUpdateCheck);
             rsrcs.setBatchTimeWindow(batchTimeWindow);
             rsrcs.setMaxBatchSize(maxBatchSize);
             rsrcs.setInterruptJobsOnShutdown(interruptJobsOnShutdown);
             rsrcs.setInterruptJobsOnShutdownWithWait(interruptJobsOnShutdownWithWait);
-            rsrcs.setJMXExport(jmxExport);
-            rsrcs.setJMXObjectName(jmxObjectName);
-
-            if (managementRESTServiceEnabled) {
-                ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
-                managementRESTServiceConfiguration.setBind(managementRESTServiceHostAndPort);
-                managementRESTServiceConfiguration.setEnabled(managementRESTServiceEnabled);
-                rsrcs.setManagementRESTServiceConfiguration(managementRESTServiceConfiguration);
-            }
-    
-            if (rmiExport) {
-                rsrcs.setRMIRegistryHost(rmiHost);
-                rsrcs.setRMIRegistryPort(rmiPort);
-                rsrcs.setRMIServerPort(rmiServerPort);
-                rsrcs.setRMICreateRegistryStrategy(rmiCreateRegistry);
-                rsrcs.setRMIBindName(rmiBindName);
-            }
     
             SchedulerDetailsSetter.setDetails(tp, schedName, schedInstId);
 
@@ -1296,7 +844,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
     
             // Initialize plugins now that we have a Scheduler instance.
             for (int i = 0; i < plugins.length; i++) {
-                plugins[i].initialize(pluginNames[i], scheduler, loadHelper);
+                plugins[i].initialize(pluginNames[i], scheduler);
             }
     
             // add listeners
@@ -1318,24 +866,19 @@ public class StdSchedulerFactory implements SchedulerFactory {
             js.setInstanceId(schedInstId);
             js.setInstanceName(schedName);
             js.setThreadPoolSize(tp.getPoolSize());
-            js.initialize(loadHelper, qs.getSchedulerSignaler());
+            js.initialize(qs.getSchedulerSignaler());
 
             jrsf.initialize(scheduler);
-            
-            qs.initialize();
-    
-            getLog().info(
+
+            LogManager.getLogger(this).info(
                     "Quartz scheduler '" + scheduler.getSchedulerName()
                             + "' initialized from " + propSrc);
-    
-            getLog().info("Quartz scheduler version: " + qs.getVersion());
+
+            LogManager.getLogger(this).info("Quartz scheduler version: " + qs.getVersion());
     
             // prevents the repository from being garbage collected
             qs.addNoGCObject(schedRep);
             // prevents the db manager from being garbage collected
-            if (dbMgr != null) {
-                qs.addNoGCObject(dbMgr);
-            }
     
             schedRep.bind(scheduler);
             return scheduler;
@@ -1354,24 +897,6 @@ public class StdSchedulerFactory implements SchedulerFactory {
         }
     }
 
-    private void populateProviderWithExtraProps(PoolingConnectionProvider cp, Properties props) throws Exception {
-        Properties copyProps = new Properties();
-        copyProps.putAll(props);
-
-        // Remove all the default properties first (they don't always match to setter name, and they are already
-        // been set!)
-        copyProps.remove(PoolingConnectionProvider.DB_DRIVER);
-        copyProps.remove(PoolingConnectionProvider.DB_URL);
-        copyProps.remove(PoolingConnectionProvider.DB_USER);
-        copyProps.remove(PoolingConnectionProvider.DB_PASSWORD);
-        copyProps.remove(PoolingConnectionProvider.DB_IDLE_VALIDATION_SECONDS);
-        copyProps.remove(PoolingConnectionProvider.DB_MAX_CONNECTIONS);
-        copyProps.remove(PoolingConnectionProvider.DB_MAX_CACHED_STATEMENTS_PER_CONNECTION);
-        copyProps.remove(PoolingConnectionProvider.DB_VALIDATE_ON_CHECKOUT);
-        copyProps.remove(PoolingConnectionProvider.DB_VALIDATION_QUERY);
-        setBeanProps(cp.getDataSource(), copyProps);
-    }
-
     private void shutdownFromInstantiateException(ThreadPool tp, QuartzScheduler qs, boolean tpInited, boolean qsInited) {
         try {
             if(qsInited)
@@ -1379,7 +904,7 @@ public class StdSchedulerFactory implements SchedulerFactory {
             else if(tpInited)
                 tp.shutdown(false);
         } catch (Exception e) {
-            getLog().error("Got another exception while shutting down after instantiation exception", e);
+            LogManager.getLogger(this).error("Got another exception while shutting down after instantiation exception", e);
         }
     }
 

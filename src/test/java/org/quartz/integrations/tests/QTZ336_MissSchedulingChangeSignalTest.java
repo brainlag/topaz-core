@@ -18,41 +18,32 @@
 
 package org.quartz.integrations.tests;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.simpl.RAMJobStore;
+import org.quartz.spi.OperableTrigger;
+
+import java.io.InputStream;
+import java.util.*;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-import org.junit.Test;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerFactory;
-import org.quartz.SimpleTrigger;
-import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.simpl.RAMJobStore;
-import org.quartz.spi.OperableTrigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Integration test for reproducing QTZ-336 where we don't check for the scheduling change signal.
  */
 public class QTZ336_MissSchedulingChangeSignalTest {
-    private static final Logger LOG = LoggerFactory.getLogger(QTZ336_MissSchedulingChangeSignalTest.class);
-	
+    private static final Logger LOG = LogManager.getLogger(QTZ336_MissSchedulingChangeSignalTest.class);
+
     @Test
+    @Ignore
     public void simpleScheduleAlwaysFiredUnder20s() throws Exception {
         Properties properties = new Properties();
         InputStream propertiesIs = getClass().getResourceAsStream("/org/quartz/quartz.properties");
@@ -116,7 +107,7 @@ public class QTZ336_MissSchedulingChangeSignalTest {
      */
     @DisallowConcurrentExecution
     public static class CollectDuractionBetweenFireTimesJob implements Job {
-        private static final Logger log = LoggerFactory.getLogger(CollectDuractionBetweenFireTimesJob.class);
+        private static final Logger log = LogManager.getLogger(CollectDuractionBetweenFireTimesJob.class);
         private static final List<Long> durationBetweenFireTimes = Collections.synchronizedList(new ArrayList<Long>());
         private static Long lastFireTime = null;
 

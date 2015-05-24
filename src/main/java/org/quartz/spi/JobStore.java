@@ -17,24 +17,15 @@
 
 package org.quartz.spi;
 
+import org.quartz.*;
+import org.quartz.Trigger.CompletedExecutionInstruction;
+import org.quartz.Trigger.TriggerState;
+import org.quartz.impl.matchers.GroupMatcher;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.quartz.Calendar;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.JobPersistenceException;
-import org.quartz.ObjectAlreadyExistsException;
-import org.quartz.SchedulerConfigException;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
-import org.quartz.Trigger.CompletedExecutionInstruction;
-import org.quartz.Trigger.TriggerState;
-import org.quartz.impl.matchers.GroupMatcher;
 
 /**
  * <p>
@@ -60,19 +51,11 @@ import org.quartz.impl.matchers.GroupMatcher;
  */
 public interface JobStore {
 
-    /*
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     *
-     * Interface.
-     *
-     * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     */
-
     /**
      * Called by the QuartzScheduler before the <code>JobStore</code> is
      * used, in order to give the it a chance to initialize.
      */
-    void initialize(ClassLoadHelper loadHelper, SchedulerSignaler signaler) 
+    void initialize(SchedulerSignaler signaler)
         throws SchedulerConfigException;
 
     /**
@@ -449,7 +432,7 @@ public interface JobStore {
      * paused.
      * </p>
      *
-     * @see #resumeTriggerGroup(String)
+     * @see #resumeTriggers(GroupMatcher<TriggerKey>)
      */
     Collection<String> pauseTriggers(GroupMatcher<TriggerKey> matcher) throws JobPersistenceException;
 
@@ -471,7 +454,6 @@ public interface JobStore {
      * paused.
      * </p>
      *
-     * @see #resumeJobGroup(String)
      */
     Collection<String> pauseJobs(GroupMatcher<JobKey> groupMatcher)
         throws JobPersistenceException;
@@ -498,7 +480,7 @@ public interface JobStore {
      * <code>Trigger</code>'s misfire instruction will be applied.
      * </p>
      *
-     * @see #pauseTriggers(String)
+     * @see #pauseTriggers(GroupMatcher<TriggerKey>)
      */
     Collection<String> resumeTriggers(GroupMatcher<TriggerKey> matcher)
         throws JobPersistenceException;
@@ -530,7 +512,7 @@ public interface JobStore {
      * misfire instruction will be applied.
      * </p>
      *
-     * @see #pauseJobGroup(String)
+     * @see #pauseJobs(GroupMatcher<JobKey>)
      */
     Collection<String> resumeJobs(GroupMatcher<JobKey> matcher)
         throws JobPersistenceException;
@@ -545,7 +527,7 @@ public interface JobStore {
      * </p>
      *
      * @see #resumeAll()
-     * @see #pauseTriggers(String)
+     * @see #pauseTriggers(GroupMatcher<JobKey>)
      */
     void pauseAll() throws JobPersistenceException;
 
@@ -576,7 +558,7 @@ public interface JobStore {
      * @param noLaterThan If > 0, the JobStore should only return a Trigger
      * that will fire no later than the time represented in this value as
      * milliseconds.
-     * @see #releaseAcquiredTrigger(Trigger)
+     * @see #releaseAcquiredTrigger(OperableTrigger)
      */
     List<OperableTrigger> acquireNextTriggers(long noLaterThan, int maxCount, long timeWindow)
         throws JobPersistenceException;

@@ -15,19 +15,17 @@
  */
 package org.quartz;
 
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
-import static org.quartz.TriggerBuilder.newTrigger;
-
-import java.util.Properties;
-
 import junit.framework.Assert;
-
+import org.apache.logging.log4j.LogManager;
 import org.junit.Test;
 import org.quartz.Trigger.CompletedExecutionInstruction;
 import org.quartz.impl.StdSchedulerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
+
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * A unit test to reproduce QTZ-205 bug:
@@ -36,13 +34,12 @@ import org.slf4j.LoggerFactory;
  * @author Zemian Deng <saltnlight5@gmail.com>
  */
 public class Qtz205SchedulerListenerTest {
-	private static Logger logger = LoggerFactory.getLogger(Qtz205SchedulerListenerTest.class);
-	
+
 	public static class Qtz205Job implements Job {
 		private static volatile int jobExecutionCount = 0;	
 		public void execute(JobExecutionContext context) throws JobExecutionException {
 			jobExecutionCount++;
-			logger.info("Job executed. jobExecutionCount=" + jobExecutionCount);
+			LogManager.getLogger(this).info("Job executed. jobExecutionCount=" + jobExecutionCount);
 		}
 		
 	}
@@ -58,12 +55,12 @@ public class Qtz205SchedulerListenerTest {
 
 		public void triggerFired(Trigger trigger, JobExecutionContext context) {
 			fireCount++;
-			logger.info("Trigger fired. count " + fireCount);
+			LogManager.getLogger(this).info("Trigger fired. count " + fireCount);
 		}
 
 		public boolean vetoJobExecution(Trigger trigger, JobExecutionContext context) {
 			if (fireCount >= 3) {
-				logger.info("Job execution vetoed.");
+				LogManager.getLogger(this).info("Job execution vetoed.");
 				return true;
 			} else {
 				return false;
@@ -93,7 +90,7 @@ public class Qtz205SchedulerListenerTest {
 
 		public void triggerFinalized(Trigger trigger) {
 			triggerFinalizedCount ++;
-			logger.info("triggerFinalized " + trigger);
+			LogManager.getLogger(this).info("triggerFinalized " + trigger);
 		}
 
 		public void triggerPaused(TriggerKey triggerKey) {

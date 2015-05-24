@@ -15,15 +15,14 @@
  */
 package org.quartz;
 
-import static org.quartz.DateBuilder.evenSecondDateAfterNow;
-import static org.quartz.DateBuilder.futureDate;
-import static org.quartz.TriggerBuilder.newTrigger;
+import junit.framework.TestCase;
+import org.quartz.DateBuilder.IntervalUnit;
 
 import java.util.Date;
 
-import junit.framework.TestCase;
-
-import org.quartz.DateBuilder.IntervalUnit;
+import static org.quartz.DateBuilder.evenSecondDateAfterNow;
+import static org.quartz.DateBuilder.futureDate;
+import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
  * Test TriggerBuilder functionality
@@ -31,12 +30,6 @@ import org.quartz.DateBuilder.IntervalUnit;
 public class TriggerBuilderTest extends TestCase {
 
 
-    @SuppressWarnings("deprecation")
-    public static class TestStatefulJob implements StatefulJob {
-        public void execute(JobExecutionContext context)
-                throws JobExecutionException {
-        }
-    }
 
     public static class TestJob implements Job {
         public void execute(JobExecutionContext context)

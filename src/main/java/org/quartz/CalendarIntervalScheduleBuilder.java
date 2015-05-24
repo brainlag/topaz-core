@@ -17,11 +17,11 @@
 
 package org.quartz;
 
-import java.util.TimeZone;
-
 import org.quartz.DateBuilder.IntervalUnit;
 import org.quartz.impl.triggers.CalendarIntervalTriggerImpl;
 import org.quartz.spi.MutableTrigger;
+
+import java.util.TimeZone;
 
 /**
  * <code>CalendarIntervalScheduleBuilder</code> is a {@link ScheduleBuilder} 

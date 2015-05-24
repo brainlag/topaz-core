@@ -16,12 +16,12 @@
 
 package org.quartz.utils.counter;
 
+import org.quartz.utils.counter.sampled.SampledCounter;
+import org.quartz.utils.counter.sampled.SampledCounterImpl;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-
-import org.quartz.utils.counter.sampled.SampledCounter;
-import org.quartz.utils.counter.sampled.SampledCounterImpl;
 
 /**
  * An implementation of a {@link CounterManager}.

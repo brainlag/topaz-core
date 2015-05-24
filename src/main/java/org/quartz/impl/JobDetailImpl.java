@@ -18,17 +18,7 @@
 
 package org.quartz.impl;
 
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.PersistJobDataAfterExecution;
-import org.quartz.Scheduler;
-import org.quartz.StatefulJob;
-import org.quartz.Trigger;
+import org.quartz.*;
 import org.quartz.utils.ClassUtils;
 
 
@@ -54,7 +44,6 @@ import org.quartz.utils.ClassUtils;
  * </p>
  * 
  * @see Job
- * @see StatefulJob
  * @see JobDataMap
  * @see Trigger
  * 

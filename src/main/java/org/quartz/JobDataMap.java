@@ -18,10 +18,10 @@
 
 package org.quartz;
 
+import org.quartz.utils.StringKeyDirtyFlagMap;
+
 import java.io.Serializable;
 import java.util.Map;
-
-import org.quartz.utils.StringKeyDirtyFlagMap;
 
 /**
  * Holds state information for <code>Job</code> instances.

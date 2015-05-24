@@ -15,22 +15,16 @@
  */
 package org.quartz;
 
+import junit.framework.TestCase;
+
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
-import junit.framework.TestCase;
 
 /**
  * Test JobBuilder functionality 
  */
 public class JobBuilderTest extends TestCase {
 
-
-    @SuppressWarnings("deprecation")
-    public static class TestStatefulJob implements StatefulJob {
-        public void execute(JobExecutionContext context)
-                throws JobExecutionException {
-        }
-    }
 
     public static class TestJob implements Job {
         public void execute(JobExecutionContext context)
@@ -81,19 +75,6 @@ public class JobBuilderTest extends TestCase {
         assertTrue("Expected requestsRecovery == true ", job.requestsRecovery());
         assertTrue("Expected isConcurrentExectionDisallowed == true ", job.isConcurrentExectionDisallowed());
         assertTrue("Expected isPersistJobDataAfterExecution == true ", job.isPersistJobDataAfterExecution());
-        
-        job = newJob()
-            .ofType(TestStatefulJob.class)
-            .withIdentity("j1", "g1")
-            .requestRecovery(false)
-            .build();
-        
-        assertTrue("Unexpected job group: " + job.getKey().getName(), job.getKey().getGroup().equals("g1"));
-        assertFalse("Expected isDurable == false ", job.isDurable());
-        assertFalse("Expected requestsRecovery == false ", job.requestsRecovery());
-        assertTrue("Expected isConcurrentExectionDisallowed == true ", job.isConcurrentExectionDisallowed());
-        assertTrue("Expected isPersistJobDataAfterExecution == true ", job.isPersistJobDataAfterExecution());
-     
     }
 
 }

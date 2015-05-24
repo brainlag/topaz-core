@@ -15,12 +15,10 @@
  */
 package org.quartz.listeners;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.quartz.TriggerListener;
-import org.quartz.Trigger;
 import org.quartz.JobExecutionContext;
+import org.quartz.Trigger;
 import org.quartz.Trigger.CompletedExecutionInstruction;
+import org.quartz.TriggerListener;
 
 /**
  * A helpful abstract base class for implementors of 
@@ -40,15 +38,6 @@ import org.quartz.Trigger.CompletedExecutionInstruction;
  * @see org.quartz.TriggerListener
  */
 public abstract class TriggerListenerSupport implements TriggerListener {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    /**
-     * Get the <code>{@link org.slf4j.Logger}</code> for this
-     * class's category.  This should be used by subclasses for logging.
-     */
-    protected Logger getLog() {
-        return log;
-    }
 
     public void triggerFired(Trigger trigger, JobExecutionContext context) {
     }

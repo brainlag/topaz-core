@@ -15,16 +15,15 @@
  */
 package org.quartz;
 
-import java.util.Calendar;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
 import junit.framework.TestCase;
-
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.spi.MutableTrigger;
+
+import java.util.Calendar;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Test Trigger priority support.
@@ -34,8 +33,7 @@ public class PriorityTest extends TestCase {
     private static CountDownLatch latch;
     private static StringBuffer result;
 
-    @SuppressWarnings("deprecation")
-    public static class TestJob implements StatefulJob {
+    public static class TestJob implements Job {
         public void execute(JobExecutionContext context)
                 throws JobExecutionException {
             result.append(context.getTrigger().getKey().getName());

@@ -1,21 +1,9 @@
 package org.quartz.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import org.quartz.JobKey;
-import org.quartz.JobListener;
-import org.quartz.ListenerManager;
-import org.quartz.Matcher;
-import org.quartz.SchedulerListener;
-import org.quartz.TriggerKey;
-import org.quartz.TriggerListener;
+import org.quartz.*;
 import org.quartz.impl.matchers.EverythingMatcher;
+
+import java.util.*;
 
 public class ListenerManagerImpl implements ListenerManager {
 

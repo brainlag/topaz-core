@@ -15,10 +15,10 @@
  */
 package org.quartz;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.quartz.DateBuilder.IntervalUnit;
+import org.quartz.impl.calendar.BaseCalendar;
+import org.quartz.impl.triggers.CalendarIntervalTriggerImpl;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -26,15 +26,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.junit.Test;
-import org.quartz.DateBuilder.IntervalUnit;
-import org.quartz.impl.calendar.BaseCalendar;
-import org.quartz.impl.triggers.CalendarIntervalTriggerImpl;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for DateIntervalTrigger.
  */
-public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
+public class CalendarIntervalTriggerTest {
     
     private static final String[] VERSIONS = new String[] {"2.0"};
 
@@ -56,6 +55,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertThat(trigger.getFireTimeAfter(after), equalTo(triggerTime));
     }
 
+    @Test
     public void testQTZ330DaylightSavingsCornerCase() {
         TimeZone edt = TimeZone.getTimeZone("America/New_York");
 
@@ -80,6 +80,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertThat(fireTime.after(after.getTime()), is(true));
     }
 
+    @Test
     public void testYearlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -101,7 +102,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertEquals("Year increment result not as expected.", targetCalendar.getTime(), secondTime);
     }
 
-    
+    @Test
     public void testMonthlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -125,6 +126,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertEquals("Month increment result not as expected.", targetCalendar.getTime(), fifthTime);
     }
 
+    @Test
     public void testWeeklyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -147,7 +149,8 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         assertEquals("Week increment result not as expected.", targetCalendar.getTime(), fifthTime);
     }
-    
+
+    @Test
     public void testDailyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -170,7 +173,8 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         assertEquals("Day increment result not as expected.", targetCalendar.getTime(), fifthTime);
     }
-    
+
+    @Test
     public void testHourlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -194,6 +198,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertEquals("Hour increment result not as expected.", targetCalendar.getTime(), fifthTime);
     }
 
+    @Test
     public void testMinutelyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -217,6 +222,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertEquals("Minutes increment result not as expected.", targetCalendar.getTime(), fifthTime);
     }
 
+    @Test
     public void testSecondlyIntervalGetFireTimeAfter() {
 
         Calendar startCalendar = Calendar.getInstance();
@@ -240,6 +246,7 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         assertEquals("Seconds increment result not as expected.", targetCalendar.getTime(), fifthTime);
     }
 
+    @Test
     public void testDaylightSavingsTransitions() {
 
         // Pick a day before a spring daylight savings transition...
@@ -392,8 +399,8 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
 
         assertEquals("Day increment result not as expected over fall 2011 daylight savings transition.", targetCalendar.getTime(), testTime);        
     }
- 
-    
+
+    @Test
     public void testFinalFireTimes() {
 
         
@@ -443,7 +450,8 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         
         assertTrue("Final fire time not computed correctly for minutely interval.", (endCalendar.getTime().equals(testTime)));
     }
-    
+
+    @Test
     public void testMisfireInstructionValidity() throws ParseException {
         CalendarIntervalTriggerImpl trigger = new CalendarIntervalTriggerImpl();
 
@@ -465,56 +473,5 @@ public class CalendarIntervalTriggerTest  extends SerializationTestSupport {
         catch(Exception e) {
         }
     }
-    
-    @Override
-    protected Object getTargetObject() throws Exception {
-        JobDataMap jobDataMap = new JobDataMap();
-        jobDataMap.put("A", "B");
-        
-        CalendarIntervalTriggerImpl t = new CalendarIntervalTriggerImpl();
-        t.setName("test");
-        t.setGroup("testGroup");
-        t.setCalendarName("MyCalendar");
-        t.setDescription("CronTriggerDesc");
-        t.setJobDataMap(jobDataMap);
-        t.setRepeatInterval(5);
-        t.setRepeatIntervalUnit(IntervalUnit.DAY);
-
-        return t;    
-    }
-
-
-    @Override
-    protected String[] getVersions() {
-        return VERSIONS;
-    }
-
-    @Override
-    protected void verifyMatch(Object target, Object deserialized) {
-        CalendarIntervalTriggerImpl targetCalTrigger = (CalendarIntervalTriggerImpl)target;
-        CalendarIntervalTriggerImpl deserializedCalTrigger = (CalendarIntervalTriggerImpl)deserialized;
-
-        assertNotNull(deserializedCalTrigger);
-        assertEquals(targetCalTrigger.getName(), deserializedCalTrigger.getName());
-        assertEquals(targetCalTrigger.getGroup(), deserializedCalTrigger.getGroup());
-        assertEquals(targetCalTrigger.getJobName(), deserializedCalTrigger.getJobName());
-        assertEquals(targetCalTrigger.getJobGroup(), deserializedCalTrigger.getJobGroup());
-//        assertEquals(targetCronTrigger.getStartTime(), deserializedCronTrigger.getStartTime());
-        assertEquals(targetCalTrigger.getEndTime(), deserializedCalTrigger.getEndTime());
-        assertEquals(targetCalTrigger.getCalendarName(), deserializedCalTrigger.getCalendarName());
-        assertEquals(targetCalTrigger.getDescription(), deserializedCalTrigger.getDescription());
-        assertEquals(targetCalTrigger.getJobDataMap(), deserializedCalTrigger.getJobDataMap());
-        assertEquals(targetCalTrigger.getRepeatInterval(), deserializedCalTrigger.getRepeatInterval());
-        assertEquals(targetCalTrigger.getRepeatIntervalUnit(), deserializedCalTrigger.getRepeatIntervalUnit());
-        
-    }
-    
-    // execute with version number to generate a new version's serialized form
-    public static void main(String[] args) throws Exception {
-        new CalendarIntervalTriggerTest().writeJobDataFile("2.0");
-    }
-
-
-
 
 }

@@ -18,22 +18,12 @@
 
 package org.quartz.impl.triggers;
 
+import org.quartz.*;
+import org.quartz.DateBuilder.IntervalUnit;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import org.quartz.CalendarIntervalScheduleBuilder;
-import org.quartz.CalendarIntervalTrigger;
-import org.quartz.CronTrigger;
-import org.quartz.DateBuilder.IntervalUnit;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.ScheduleBuilder;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
-import org.quartz.TriggerUtils;
 
 
 /**

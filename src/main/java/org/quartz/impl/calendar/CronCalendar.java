@@ -1,11 +1,11 @@
 package org.quartz.impl.calendar;
 
+import org.quartz.Calendar;
+import org.quartz.CronExpression;
+
 import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
-
-import org.quartz.Calendar;
-import org.quartz.CronExpression;
 
 /**
  * This implementation of the Calendar excludes the set of times expressed by a
